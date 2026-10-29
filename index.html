@@ -1,0 +1,986 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Жар — ресторан открытого огня</title>
+<meta name="description" content="Ресторан «Жар»: мясо, рыба и овощи на открытом огне и в дровяной печи. Бронирование столов онлайн.">
+<meta name="theme-color" content="#0f0d0b">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0d0b;
+    --bg-2: #15110e;
+    --card: #1c1712;
+    --card-2: #241d17;
+    --cream: #f1e6d6;
+    --cream-2: #d8cbb8;
+    --muted: #9c8f82;
+    --ember: #e2683c;
+    --ember-2: #f08a4b;
+    --gold: #d9a75b;
+    --line: rgba(241,230,214,.12);
+    --ease: cubic-bezier(.22,.8,.24,1);
+    --serif: "Playfair Display", Georgia, serif;
+    --sans: Inter, -apple-system, "Segoe UI", Arial, sans-serif;
+    --r: 20px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  body { background: var(--bg); color: var(--cream); font: 16px/1.65 var(--sans); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+  body.lock { overflow: hidden; }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+  svg { display: block; }
+  ::selection { background: var(--ember); color: #fff; }
+  :focus-visible { outline: 2px solid var(--ember); outline-offset: 3px; border-radius: 6px; }
+  body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 100; opacity: .06;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 0 28px; }
+  .eyebrow { display: inline-flex; align-items: center; gap: 12px; font-size: 12px; letter-spacing: .24em; text-transform: uppercase; color: var(--gold); font-weight: 600; }
+  .eyebrow::before { content: ""; width: 26px; height: 1px; background: currentColor; }
+  .title { font-family: var(--serif); font-weight: 400; font-size: clamp(40px, 5.6vw, 78px); line-height: 1.02; letter-spacing: -.02em; margin-top: 18px; }
+  .title em { font-style: italic; color: var(--ember-2); }
+  .lead { color: var(--cream-2); font-size: 18px; max-width: 540px; }
+  .sec { padding: 140px 0; position: relative; }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; height: 56px; padding: 0 30px; border-radius: 999px; font-weight: 600; font-size: 15px; transition: transform .4s var(--ease), background .3s, color .3s, box-shadow .4s, border-color .3s; white-space: nowrap; }
+  .btn-fire { background: var(--ember); color: #fff; box-shadow: 0 10px 40px -10px rgba(226,104,60,.7); }
+  .btn-fire:hover { background: var(--ember-2); transform: translateY(-2px); box-shadow: 0 16px 50px -10px rgba(240,138,75,.8); }
+  .btn-ghost { border: 1px solid rgba(241,230,214,.35); }
+  .btn-ghost:hover { border-color: var(--cream); background: rgba(241,230,214,.06); }
+  .btn-sm { height: 44px; padding: 0 22px; font-size: 14px; }
+  .btn .arr { transition: transform .4s var(--ease); }
+  .btn:hover .arr { transform: translateX(4px); }
+
+  .rv { opacity: 0; transform: translateY(30px); transition: opacity 1.1s var(--ease), transform 1.1s var(--ease); }
+  .rv.in { opacity: 1; transform: none; }
+  .d1 { transition-delay: .1s; } .d2 { transition-delay: .2s; } .d3 { transition-delay: .3s; }
+
+  /* ---------- Шапка ---------- */
+  header.nav { position: fixed; top: 0; left: 0; right: 0; z-index: 50; padding: 22px 0; transition: padding .4s, background .4s, box-shadow .4s; }
+  header.nav.scrolled { padding: 12px 0; background: rgba(15,13,11,.78); backdrop-filter: blur(14px) saturate(1.3); -webkit-backdrop-filter: blur(14px) saturate(1.3); box-shadow: 0 1px 0 var(--line); }
+  .nav .wrap { display: flex; align-items: center; gap: 40px; }
+  .logo { display: flex; align-items: center; gap: 10px; font-family: var(--serif); font-size: 30px; letter-spacing: .04em; }
+  .logo svg { width: 26px; height: 30px; }
+  .menu { display: flex; gap: 30px; font-size: 14px; color: var(--cream-2); }
+  .menu a { position: relative; padding: 4px 0; transition: color .3s; }
+  .menu a:hover { color: var(--cream); }
+  .menu a::after { content: ""; position: absolute; left: 0; right: 100%; bottom: 0; height: 1px; background: var(--ember); transition: right .4s var(--ease); }
+  .menu a:hover::after { right: 0; }
+  .nav-r { margin-left: auto; display: flex; align-items: center; gap: 20px; }
+  .open-now { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--cream-2); }
+  .open-now i { width: 8px; height: 8px; border-radius: 50%; background: #6fbf73; box-shadow: 0 0 0 0 rgba(111,191,115,.6); animation: ping 2s infinite; }
+  .open-now.closed i { background: var(--muted); animation: none; }
+  @keyframes ping { 0% { box-shadow: 0 0 0 0 rgba(111,191,115,.6); } 80%,100% { box-shadow: 0 0 0 10px rgba(111,191,115,0); } }
+  .burger { display: none; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); position: relative; }
+  .burger span { position: absolute; left: 13px; right: 13px; height: 1.5px; background: var(--cream); transition: transform .4s var(--ease), top .4s var(--ease); }
+  .burger span:nth-child(1) { top: 18px; } .burger span:nth-child(2) { top: 25px; }
+  .menu-open .burger span:nth-child(1) { top: 21px; transform: rotate(45deg); }
+  .menu-open .burger span:nth-child(2) { top: 21px; transform: rotate(-45deg); }
+  .mmenu { position: fixed; inset: 0; z-index: 45; background: var(--bg); display: flex; flex-direction: column; justify-content: center; padding: 0 28px; gap: 4px; clip-path: circle(0 at calc(100% - 50px) 44px); transition: clip-path .7s var(--ease), visibility 0s .7s; visibility: hidden; }
+  .menu-open .mmenu { clip-path: circle(150% at calc(100% - 50px) 44px); visibility: visible; transition: clip-path .7s var(--ease), visibility 0s; }
+  .mmenu a { font-family: var(--serif); font-size: 44px; line-height: 1.25; }
+  .mmenu .btn { margin-top: 26px; align-self: flex-start; }
+
+  /* ---------- Первый экран ---------- */
+  .hero { position: relative; min-height: 100vh; min-height: 100svh; display: flex; align-items: center; justify-content: center; text-align: center; overflow: hidden; padding: 120px 0 140px; }
+  .hero::before { content: ""; position: absolute; left: 50%; bottom: -38vh; width: 120vw; height: 70vh; transform: translateX(-50%); background: radial-gradient(ellipse at center, rgba(226,104,60,.55) 0%, rgba(180,60,20,.25) 35%, transparent 70%); animation: glow 5s ease-in-out infinite alternate; }
+  .hero::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 20%, transparent 40%, rgba(15,13,11,.85) 100%); pointer-events: none; }
+  @keyframes glow { from { opacity: .75; transform: translateX(-50%) scale(1); } to { opacity: 1; transform: translateX(-50%) scale(1.06); } }
+  #embers { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+  .hero .inner { position: relative; z-index: 2; max-width: 1000px; padding: 0 20px; }
+  .hero h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(54px, 9.5vw, 148px); line-height: .95; letter-spacing: -.035em; margin: 26px 0 30px; }
+  .hero h1 em { font-style: italic; background: linear-gradient(180deg, #ffd29a 0%, var(--ember-2) 45%, #c2410c 100%); -webkit-background-clip: text; background-clip: text; color: transparent; padding-right: .06em; }
+  .hero h1 .ln { display: block; overflow: hidden; padding-bottom: .04em; }
+  .hero h1 .ln > span { display: inline-block; transform: translateY(105%); animation: up 1.3s var(--ease) forwards; }
+  .hero h1 .ln:nth-child(2) > span { animation-delay: .14s; }
+  @keyframes up { to { transform: none; } }
+  .hero .lead { margin: 0 auto; }
+  .fade { opacity: 0; animation: fade 1.4s .55s var(--ease) forwards; }
+  @keyframes fade { to { opacity: 1; } }
+  .hero .actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 40px; }
+  .hero-info { position: absolute; z-index: 2; left: 0; right: 0; bottom: 34px; }
+  .hero-info .wrap { display: flex; justify-content: space-between; gap: 20px; font-size: 13px; color: var(--cream-2); flex-wrap: wrap; }
+  .hero-info b { color: var(--cream); font-weight: 600; }
+  .scroll-hint { display: inline-flex; align-items: center; gap: 10px; }
+  .scroll-hint i { width: 1px; height: 34px; background: linear-gradient(var(--cream), transparent); animation: drop 2s infinite; transform-origin: top; }
+  @keyframes drop { 0% { transform: scaleY(0); } 50% { transform: scaleY(1); } 100% { transform: scaleY(1); opacity: 0; } }
+
+  /* ---------- Бегущая строка ---------- */
+  .marquee { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 24px 0; overflow: hidden; background: var(--bg-2); }
+  .mtrack { display: flex; width: max-content; animation: marq 45s linear infinite; }
+  .mtrack span { font-family: var(--serif); font-style: italic; font-size: clamp(26px, 3.2vw, 44px); padding: 0 26px; display: flex; align-items: center; gap: 52px; white-space: nowrap; color: var(--cream-2); }
+  .mtrack span::after { content: ""; width: 10px; height: 14px; background: var(--ember); clip-path: path("M5 0C7 4 10 6 10 9.5A5 5 0 0 1 0 9.5C0 7 2 5.5 3 3.5C3.5 5 4.5 5.5 5 5.5C5 3.5 4.5 2 5 0Z"); }
+  @keyframes marq { to { transform: translateX(-50%); } }
+
+  /* ---------- О ресторане ---------- */
+  .about { display: grid; grid-template-columns: 1fr 1fr; gap: 90px; align-items: center; }
+  .chef-card { position: relative; aspect-ratio: 4/5; border-radius: 300px 300px var(--r) var(--r); overflow: hidden; background: radial-gradient(circle at 50% 85%, rgba(226,104,60,.55), transparent 55%), linear-gradient(180deg, #2a211a, #120e0b); display: grid; place-items: end center; }
+  .chef-card svg.fire { position: absolute; top: 12%; left: 50%; width: 52%; transform: translateX(-50%); filter: drop-shadow(0 0 40px rgba(226,104,60,.55)); }
+  .fire .fl { transform-box: fill-box; transform-origin: 50% 100%; animation: flick 2.4s ease-in-out infinite alternate; }
+  .fire .f2 { animation-duration: 1.8s; animation-delay: -.6s; }
+  .fire .f3 { animation-duration: 1.3s; animation-delay: -.3s; }
+  @keyframes flick { 0% { transform: scale(1, 1) skewX(0deg); } 33% { transform: scale(.96, 1.06) skewX(2deg); } 66% { transform: scale(1.03, .95) skewX(-2deg); } 100% { transform: scale(.98, 1.04) skewX(1deg); } }
+  .chef-card .quote { position: relative; z-index: 1; padding: 0 34px 36px; text-align: center; }
+  .chef-card .quote p { font-family: var(--serif); font-style: italic; font-size: 26px; line-height: 1.3; }
+  .chef-card .quote small { display: block; margin-top: 14px; font-size: 13px; color: var(--gold); letter-spacing: .14em; text-transform: uppercase; }
+  .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 54px; border-top: 1px solid var(--line); }
+  .fact { padding: 26px 20px 0 0; }
+  .fact + .fact { padding-left: 22px; border-left: 1px solid var(--line); }
+  .fact b { display: block; font-family: var(--serif); font-size: 46px; font-weight: 400; line-height: 1; color: var(--ember-2); }
+  .fact span { font-size: 14px; color: var(--muted); }
+
+  /* ---------- Фирменные блюда ---------- */
+  .sig { background: var(--bg-2); border-radius: 48px 48px 0 0; }
+  .sig-head { display: flex; justify-content: space-between; align-items: end; gap: 30px; flex-wrap: wrap; margin-bottom: 64px; }
+  .dishes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .dish { background: var(--card); border-radius: var(--r); padding: 30px 30px 32px; position: relative; overflow: hidden; transition: opacity 1.1s var(--ease), transform .8s var(--ease), background .4s; }
+  .dish:hover { transform: translateY(-8px); background: var(--card-2); }
+  .dish .plate { width: 78%; margin: 6px auto 26px; aspect-ratio: 1; transition: transform 1.4s var(--ease); filter: drop-shadow(0 30px 30px rgba(0,0,0,.55)); }
+  .dish:hover .plate { transform: rotate(24deg) scale(1.04); }
+  .dish .num { position: absolute; top: 24px; left: 28px; font-family: var(--serif); font-style: italic; color: var(--gold); }
+  .dish h3 { font-family: var(--serif); font-weight: 400; font-size: 30px; line-height: 1.1; }
+  .dish p { color: var(--muted); font-size: 15px; margin: 10px 0 18px; }
+  .dish .pr { display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 1px solid var(--line); }
+  .dish .pr b { font-family: var(--serif); font-size: 26px; font-weight: 400; }
+  .dish .pr span { font-size: 13px; color: var(--muted); }
+
+  /* ---------- Меню ---------- */
+  .menu-sec { background: var(--bg-2); padding-top: 40px; }
+  .menu-top { display: flex; justify-content: space-between; align-items: end; gap: 30px; flex-wrap: wrap; margin-bottom: 46px; }
+  .mtabs { display: flex; gap: 6px; flex-wrap: wrap; padding: 6px; border-radius: 999px; border: 1px solid var(--line); }
+  .mtab { height: 42px; padding: 0 20px; border-radius: 999px; font-size: 14px; font-weight: 500; color: var(--cream-2); transition: background .3s, color .3s; }
+  .mtab.on { background: var(--cream); color: var(--bg); }
+  .mlist { display: grid; grid-template-columns: 1fr 1fr; gap: 0 70px; }
+  .mi { padding: 22px 0; border-bottom: 1px solid var(--line); animation: mi .6s var(--ease) backwards; }
+  @keyframes mi { from { opacity: 0; transform: translateY(14px); } }
+  .mi .row { display: flex; align-items: baseline; gap: 12px; }
+  .mi h4 { font-family: var(--serif); font-weight: 400; font-size: 23px; line-height: 1.25; }
+  .mi .dots { flex: 1; border-bottom: 1px dotted rgba(241,230,214,.25); transform: translateY(-6px); min-width: 20px; }
+  .mi .price { font-family: var(--serif); font-size: 22px; white-space: nowrap; }
+  .mi p { color: var(--muted); font-size: 14px; margin-top: 4px; max-width: 460px; }
+  .tag { display: inline-block; font-family: var(--sans); font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; margin-left: 8px; vertical-align: 4px; }
+  .tag.hit { background: rgba(226,104,60,.16); color: var(--ember-2); }
+  .tag.veg { background: rgba(122,170,110,.16); color: #9ccf8c; }
+  .tag.hot { background: rgba(217,167,91,.16); color: var(--gold); }
+  .menu-note { margin-top: 34px; color: var(--muted); font-size: 14px; }
+
+  /* ---------- События ---------- */
+  .events { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 64px; }
+  .ev { border: 1px solid var(--line); border-radius: var(--r); padding: 34px 30px; display: flex; flex-direction: column; min-height: 320px; transition: opacity 1.1s var(--ease), transform 1.1s var(--ease), border-color .4s, background .4s; position: relative; overflow: hidden; }
+  .ev::before { content: ""; position: absolute; width: 300px; height: 300px; border-radius: 50%; right: -150px; top: -150px; background: radial-gradient(circle, rgba(226,104,60,.25), transparent 70%); opacity: 0; transition: opacity .6s; }
+  .ev:hover { border-color: rgba(226,104,60,.5); background: rgba(226,104,60,.04); }
+  .ev:hover::before { opacity: 1; }
+  .ev .when { font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); font-weight: 600; }
+  .ev h3 { font-family: var(--serif); font-weight: 400; font-size: 34px; line-height: 1.1; margin: 16px 0 12px; }
+  .ev p { color: var(--muted); font-size: 15px; }
+  .ev .foot { margin-top: auto; padding-top: 24px; display: flex; justify-content: space-between; align-items: center; }
+  .ev .foot b { font-family: var(--serif); font-weight: 400; font-size: 22px; }
+  .ev .foot button { font-size: 14px; font-weight: 600; color: var(--ember-2); }
+
+  /* ---------- Стол у огня ---------- */
+  .tablecta { display: grid; grid-template-columns: 1fr 1.1fr; gap: 70px; align-items: center; background: linear-gradient(135deg, #1f1812, #120e0b); border: 1px solid var(--line); border-radius: 40px; padding: 70px; position: relative; overflow: hidden; }
+  .tablecta::after { content: ""; position: absolute; width: 600px; height: 600px; border-radius: 50%; right: -200px; bottom: -300px; background: radial-gradient(circle, rgba(226,104,60,.35), transparent 65%); pointer-events: none; }
+  .mini-plan { position: relative; z-index: 1; }
+  .ticks { list-style: none; display: grid; gap: 10px; margin: 28px 0 34px; }
+  .ticks li { display: flex; gap: 12px; color: var(--cream-2); }
+  .ticks li::before { content: ""; flex: none; width: 6px; height: 6px; margin-top: 10px; border-radius: 50%; background: var(--ember); box-shadow: 0 0 10px var(--ember); }
+
+  /* ---------- Отзывы ---------- */
+  .rev-grid { display: grid; grid-template-columns: 1.1fr 1fr 1fr; gap: 24px; margin-top: 64px; }
+  .rev { background: var(--card); border-radius: var(--r); padding: 34px 30px; display: flex; flex-direction: column; }
+  .rev.big { grid-row: span 2; background: linear-gradient(180deg, #2a1d14, var(--card)); }
+  .rev .stars { color: var(--gold); letter-spacing: 3px; font-size: 13px; }
+  .rev p { font-family: var(--serif); font-size: 21px; line-height: 1.4; margin: 18px 0 26px; }
+  .rev.big p { font-size: 30px; line-height: 1.3; }
+  .rev .who { margin-top: auto; font-size: 14px; }
+  .rev .who small { display: block; color: var(--muted); }
+  .scores { display: flex; gap: 40px; }
+  .scores b { font-family: var(--serif); font-size: 52px; font-weight: 400; line-height: 1; }
+  .scores span { display: block; font-size: 13px; color: var(--muted); }
+
+  /* ---------- Контакты ---------- */
+  .contacts { border-top: 1px solid var(--line); }
+  .ct-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 80px; }
+  .hours { margin-top: 30px; border-top: 1px solid var(--line); }
+  .hours div { display: flex; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--line); color: var(--cream-2); }
+  .hours div.today { color: var(--cream); }
+  .hours div.today span:first-child::after { content: "сегодня"; margin-left: 10px; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ember-2); }
+  .ct-list { display: grid; gap: 28px; }
+  .ct-list .lb { font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .ct-list .v { font-family: var(--serif); font-size: 28px; line-height: 1.3; }
+  .ct-list a.v:hover { color: var(--ember-2); }
+  footer { padding: 70px 0 40px; text-align: center; }
+  footer .big { font-family: var(--serif); font-size: clamp(90px, 22vw, 340px); line-height: .8; letter-spacing: -.04em; background: linear-gradient(180deg, rgba(241,230,214,.14), rgba(241,230,214,0)); -webkit-background-clip: text; background-clip: text; color: transparent; user-select: none; }
+  footer .small { margin-top: 30px; font-size: 13px; color: var(--muted); display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+
+  /* ---------- Окно бронирования ---------- */
+  .modal { position: fixed; inset: 0; z-index: 80; display: none; }
+  .modal.open { display: block; }
+  .modal .bg { position: absolute; inset: 0; background: rgba(0,0,0,.6); backdrop-filter: blur(6px); opacity: 0; animation: fade .4s forwards; }
+  .sheet { position: absolute; right: 0; top: 0; bottom: 0; width: min(620px, 100%); background: var(--bg-2); border-left: 1px solid var(--line); padding: 30px 40px; overflow-y: auto; display: flex; flex-direction: column; animation: slide .6s var(--ease); }
+  @keyframes slide { from { transform: translateX(100%); } }
+  .sheet-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+  .close { width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; transition: transform .4s var(--ease); }
+  .close:hover { transform: rotate(90deg); }
+  .steps-bar { display: flex; gap: 6px; margin-bottom: 28px; }
+  .steps-bar i { flex: 1; height: 3px; border-radius: 3px; background: var(--line); transition: background .4s; }
+  .steps-bar i.on { background: var(--ember); }
+  .bk-title { font-family: var(--serif); font-weight: 400; font-size: 38px; line-height: 1.05; }
+  .bk-sub { color: var(--muted); margin: 8px 0 24px; font-size: 15px; }
+  .lbl { font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin: 24px 0 10px; }
+  .stepper { display: flex; align-items: center; gap: 18px; }
+  .stepper button { width: 48px; height: 48px; border-radius: 50%; border: 1px solid var(--line); font-size: 22px; transition: border-color .3s; }
+  .stepper button:hover:not(:disabled) { border-color: var(--cream); }
+  .stepper button:disabled { opacity: .3; cursor: not-allowed; }
+  .stepper output { font-family: var(--serif); font-size: 40px; min-width: 60px; text-align: center; }
+  .stepper small { color: var(--muted); }
+  .chips { display: grid; gap: 8px; }
+  .days { grid-template-columns: repeat(5, 1fr); }
+  .times { grid-template-columns: repeat(5, 1fr); }
+  .chip { border: 1px solid var(--line); border-radius: 14px; padding: 10px 4px; text-align: center; transition: all .3s; font-size: 14px; font-weight: 500; }
+  .chip small { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+  .chip b { font-family: var(--serif); font-weight: 400; font-size: 24px; line-height: 1.1; }
+  .chip:hover:not(:disabled) { border-color: var(--cream-2); }
+  .chip.on { background: var(--ember); border-color: var(--ember); color: #fff; }
+  .chip.on small { color: rgba(255,255,255,.75); }
+  .chip:disabled { opacity: .28; cursor: not-allowed; text-decoration: line-through; }
+  .note { font-size: 13px; color: var(--muted); margin-top: 12px; }
+  .warn { background: rgba(217,167,91,.12); color: var(--gold); border-radius: 14px; padding: 12px 16px; font-size: 14px; margin-top: 16px; }
+
+  .plan-wrap { background: #0c0a08; border: 1px solid var(--line); border-radius: 18px; padding: 10px; }
+  .plan { width: 100%; height: auto; }
+  .plan .tbl { cursor: pointer; outline: none; }
+  .plan .tbl .shape { fill: #2a221b; stroke: rgba(241,230,214,.35); stroke-width: 1.2; transition: fill .3s, stroke .3s; }
+  .plan .tbl .seat { fill: rgba(241,230,214,.35); transition: fill .3s; }
+  .plan .tbl text { fill: var(--cream-2); font: 600 11px Inter, sans-serif; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+  .plan .tbl:hover .shape, .plan .tbl:focus-visible .shape { stroke: var(--cream); fill: #3a2e24; }
+  .plan .tbl.sel .shape { fill: var(--ember); stroke: #ffd29a; }
+  .plan .tbl.sel .seat { fill: #ffd29a; }
+  .plan .tbl.sel text { fill: #fff; }
+  .plan .tbl.busy, .plan .tbl.small { cursor: not-allowed; }
+  .plan .tbl.busy .shape { fill: #1a1612; stroke: rgba(241,230,214,.12); }
+  .plan .tbl.busy .seat { fill: rgba(241,230,214,.12); }
+  .plan .tbl.busy text { fill: rgba(241,230,214,.25); }
+  .plan .tbl.small .shape { fill: #1a1612; stroke: rgba(241,230,214,.15); stroke-dasharray: 3 3; }
+  .plan .tbl.small text { fill: rgba(241,230,214,.3); }
+  .plan .zone-lbl { fill: var(--muted); font: 600 10px Inter, sans-serif; letter-spacing: .2em; text-transform: uppercase; }
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13px; color: var(--muted); margin-top: 12px; }
+  .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 4px; margin-right: 6px; vertical-align: -1px; }
+  .tlist { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .tlist button { border: 1px solid var(--line); border-radius: 999px; padding: 9px 14px; font-size: 13px; transition: all .3s; }
+  .tlist button:hover { border-color: var(--cream-2); }
+  .tlist button.on { background: var(--ember); border-color: var(--ember); color: #fff; }
+  .sel-info { margin-top: 16px; padding: 14px 16px; border-radius: 14px; background: var(--card); font-size: 14px; min-height: 50px; }
+  .sel-info b { color: var(--ember-2); }
+
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  .field input, .field textarea { width: 100%; font: inherit; color: var(--cream); background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 15px 18px; transition: border-color .3s; }
+  .field input:focus, .field textarea:focus { outline: none; border-color: var(--ember); }
+  .field input::placeholder, .field textarea::placeholder { color: #6f645a; }
+  .occ { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+  .occ button { border: 1px solid var(--line); border-radius: 999px; padding: 8px 16px; font-size: 14px; transition: all .3s; }
+  .occ button.on { background: var(--cream); color: var(--bg); border-color: var(--cream); }
+  .summary { background: var(--card); border-radius: 16px; padding: 18px 20px; margin-bottom: 20px; display: grid; gap: 6px; font-size: 14px; }
+  .summary div { display: flex; justify-content: space-between; gap: 12px; }
+  .summary span { color: var(--muted); }
+  .sheet-foot { margin-top: auto; padding-top: 26px; display: flex; gap: 10px; }
+  .sheet-foot .btn { flex: 1; }
+  .sheet-foot .btn[disabled] { opacity: .3; pointer-events: none; box-shadow: none; }
+  .done { text-align: center; padding-top: 40px; }
+  .done .ok { width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 28px; display: grid; place-items: center; background: radial-gradient(circle, var(--ember-2), var(--ember)); box-shadow: 0 0 60px rgba(226,104,60,.6); animation: pop .7s var(--ease); }
+  @keyframes pop { from { transform: scale(.3); opacity: 0; } }
+  .done .ok path { stroke-dasharray: 40; stroke-dashoffset: 40; animation: draw .6s .35s forwards; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+
+  /* ---------- Адаптив ---------- */
+  @media (max-width: 1080px) {
+    .menu, .open-now { display: none; }
+    .burger { display: block; }
+    .about, .tablecta, .ct-grid { grid-template-columns: 1fr; gap: 50px; }
+    .chef-card { max-width: 440px; }
+    .dishes, .events { grid-template-columns: 1fr 1fr; }
+    .rev-grid { grid-template-columns: 1fr 1fr; }
+    .rev.big { grid-row: auto; grid-column: span 2; }
+    .mlist { grid-template-columns: 1fr; }
+    .tablecta { padding: 50px 40px; }
+  }
+  @media (max-width: 680px) {
+    .wrap { padding: 0 16px; }
+    .sec { padding: 90px 0; }
+    .nav .btn { display: none; }
+    .hero h1 { font-size: clamp(50px, 15vw, 76px); }
+    .hero .actions .btn { flex: 1; }
+    .hero-info .wrap { justify-content: center; text-align: center; }
+    .hero-info .scroll-hint { display: none; }
+    .facts { grid-template-columns: 1fr; }
+    .fact, .fact + .fact { padding: 22px 0; border-left: 0; border-bottom: 1px solid var(--line); }
+    .dishes, .events, .rev-grid { grid-template-columns: 1fr; }
+    .rev.big { grid-column: auto; }
+    .rev.big p { font-size: 24px; }
+    .sig { border-radius: 30px 30px 0 0; }
+    .tablecta { padding: 36px 20px; border-radius: 28px; }
+    .mi h4 { font-size: 20px; }
+    .mi .row { flex-wrap: wrap; }
+    .ct-list .v { font-size: 24px; }
+    .sheet { padding: 22px 16px; }
+    .bk-title { font-size: 30px; }
+    .times { grid-template-columns: repeat(4, 1fr); }
+    .scores { gap: 24px; }
+    #planBox { overflow-x: auto; scrollbar-width: thin; }
+    #planBox .plan { min-width: 580px; }
+    .mtabs { flex-wrap: nowrap; overflow-x: auto; max-width: 100%; scrollbar-width: none; }
+    .mtabs::-webkit-scrollbar { display: none; }
+    .mtab { flex: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    .rv { opacity: 1; transform: none; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a href="#" class="logo" aria-label="Жар — на главную">
+      <svg viewBox="0 0 26 30"><defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd29a"/><stop offset="1" stop-color="#e2683c"/></linearGradient></defs><path d="M13 1c3 6 9 9.5 9 16a9 9 0 0 1-18 0c0-4 3-6.5 4.5-10 1 3 2.5 4 3.5 4.5C12.5 8 12 4.5 13 1z" fill="url(#lg)"/><path d="M13 14c1.5 3 4 4.5 4 7.5a4 4 0 0 1-8 0c0-2 1.5-3 2.2-4.8.6 1.2 1.3 1.5 1.8 1.6-.3-1.5-.4-2.8 0-4.3z" fill="#0f0d0b" opacity=".55"/></svg>
+      ЖАР
+    </a>
+    <nav class="menu">
+      <a href="#about">О нас</a>
+      <a href="#signature">Блюда</a>
+      <a href="#menu">Меню</a>
+      <a href="#events">События</a>
+      <a href="#reviews">Отзывы</a>
+      <a href="#contacts">Контакты</a>
+    </nav>
+    <div class="nav-r">
+      <span class="open-now" id="openNow"><i></i><span></span></span>
+      <button class="btn btn-fire btn-sm" data-book>Забронировать</button>
+      <button class="burger" id="burger" aria-label="Меню"><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<div class="mmenu" id="mmenu">
+  <a href="#about">О нас</a>
+  <a href="#signature">Блюда</a>
+  <a href="#menu">Меню</a>
+  <a href="#events">События</a>
+  <a href="#contacts">Контакты</a>
+  <button class="btn btn-fire" data-book>Забронировать стол</button>
+</div>
+
+<!-- ПЕРВЫЙ ЭКРАН -->
+<section class="hero">
+  <canvas id="embers" aria-hidden="true"></canvas>
+  <div class="inner">
+    <span class="eyebrow fade">Ресторан открытого огня</span>
+    <h1>
+      <span class="ln"><span>Кухня, которую</span></span>
+      <span class="ln"><span>готовит <em>огонь</em></span></span>
+    </h1>
+    <p class="lead fade">Мясо, рыба и овощи на углях берёзы, вишни и дуба. Никаких плит и микроволновок, только живое пламя и дровяная печь.</p>
+    <div class="actions fade">
+      <button class="btn btn-fire" data-book>Забронировать стол <span class="arr">→</span></button>
+      <a href="#menu" class="btn btn-ghost">Смотреть меню</a>
+    </div>
+  </div>
+  <div class="hero-info fade">
+    <div class="wrap">
+      <span>ул. Набережная, 7 · <b id="heroHours">12:00 – 00:00</b></span>
+      <span class="scroll-hint"><i></i>Листайте</span>
+      <span>★ <b>4,9</b> · 1 240 отзывов</span>
+    </div>
+  </div>
+</section>
+
+<div class="marquee" aria-hidden="true">
+  <div class="mtrack">
+    <span>Рибай на углях</span><span>Хлеб из дровяной печи</span><span>Дорадо целиком</span><span>Копчёный олд фэшн</span><span>Картофель в золе</span><span>Фондан с солью</span>
+    <span>Рибай на углях</span><span>Хлеб из дровяной печи</span><span>Дорадо целиком</span><span>Копчёный олд фэшн</span><span>Картофель в золе</span><span>Фондан с солью</span>
+  </div>
+</div>
+
+<!-- О НАС -->
+<section class="sec" id="about">
+  <div class="wrap about">
+    <div class="chef-card rv">
+      <svg class="fire" viewBox="0 0 200 220" aria-hidden="true">
+        <defs>
+          <linearGradient id="fl1" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#c2410c"/><stop offset=".55" stop-color="#e2683c"/><stop offset="1" stop-color="#f08a4b" stop-opacity="0"/></linearGradient>
+          <linearGradient id="fl2" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#f08a4b"/><stop offset=".6" stop-color="#ffb36b"/><stop offset="1" stop-color="#ffd29a" stop-opacity="0"/></linearGradient>
+          <linearGradient id="fl3" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ffe2b0"/><stop offset="1" stop-color="#fff3dc" stop-opacity="0"/></linearGradient>
+          <linearGradient id="log" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a3d28"/><stop offset="1" stop-color="#2a1b11"/></linearGradient>
+        </defs>
+        <g class="fl f1"><path d="M100 30 C120 70 160 95 152 150 C148 180 125 196 100 196 C75 196 52 180 48 150 C42 110 80 92 100 30Z" fill="url(#fl1)"/></g>
+        <g class="fl f2"><path d="M102 70 C116 100 140 118 134 156 C130 178 116 190 100 190 C84 190 70 178 66 156 C62 128 92 112 102 70Z" fill="url(#fl2)"/></g>
+        <g class="fl f3"><path d="M100 118 C108 134 120 146 116 166 C114 180 108 186 100 186 C92 186 86 180 84 166 C82 150 96 140 100 118Z" fill="url(#fl3)"/></g>
+        <rect x="34" y="186" width="132" height="18" rx="9" fill="url(#log)" transform="rotate(-10 100 195)"/>
+        <rect x="34" y="186" width="132" height="18" rx="9" fill="url(#log)" transform="rotate(12 100 195)"/>
+        <circle cx="46" cy="190" r="5" fill="#e2683c" opacity=".8"/><circle cx="156" cy="199" r="4" fill="#e2683c" opacity=".7"/>
+      </svg>
+      <div class="quote">
+        <p>«Огонь честнее любой техники. Он не прощает спешки, поэтому мы и не спешим»</p>
+        <small>Артём Волков, шеф-повар</small>
+      </div>
+    </div>
+    <div>
+      <div class="rv">
+        <span class="eyebrow">О ресторане</span>
+        <h2 class="title">Мы вернули на кухню <em>живой огонь</em></h2>
+      </div>
+      <p class="lead rv d1" style="margin-top:26px">В центре зала стоит открытый очаг, и каждое блюдо готовится у вас на глазах. Продукты берём у фермеров области, хлеб печём сами, а соусы варим по шесть часов.</p>
+      <div class="facts rv d2">
+        <div class="fact"><b data-count="450">0</b><span>градусов в дровяной печи</span></div>
+        <div class="fact"><b data-count="3">0</b><span>вида дров: берёза, вишня, дуб</span></div>
+        <div class="fact"><b data-count="14">0</b><span>часов томим говяжьи рёбра</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ФИРМЕННЫЕ БЛЮДА -->
+<section class="sec sig" id="signature">
+  <div class="wrap">
+    <div class="sig-head">
+      <div class="rv"><span class="eyebrow">Фирменные блюда</span><h2 class="title">То, ради чего <em>возвращаются</em></h2></div>
+      <p class="lead rv d1" style="max-width:380px">Три блюда, с которых стоит начать знакомство с «Жаром».</p>
+    </div>
+    <div class="dishes">
+      <article class="dish rv">
+        <span class="num">01</span>
+        <svg class="plate" viewBox="0 0 200 200">
+          <defs>
+            <radialGradient id="pl1" cx="50%" cy="45%" r="55%"><stop offset="0" stop-color="#f4efe7"/><stop offset=".85" stop-color="#d9d1c5"/><stop offset="1" stop-color="#b8afa2"/></radialGradient>
+            <radialGradient id="meat" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#b5523a"/><stop offset=".6" stop-color="#7a2d1d"/><stop offset="1" stop-color="#3d150c"/></radialGradient>
+          </defs>
+          <circle cx="100" cy="100" r="96" fill="url(#pl1)"/><circle cx="100" cy="100" r="72" fill="none" stroke="#c9c0b3" stroke-width="1"/>
+          <path d="M58 82 Q62 56 98 56 Q140 54 146 84 Q152 116 120 128 Q86 140 64 120 Q52 106 58 82Z" fill="url(#meat)"/>
+          <g stroke="#2a0e07" stroke-width="5" stroke-linecap="round" opacity=".75"><path d="M70 70 L96 120"/><path d="M90 62 L118 124"/><path d="M112 60 L138 112"/></g>
+          <path d="M70 92 Q100 82 132 96" stroke="#e3a37f" stroke-width="2" fill="none" opacity=".5"/>
+          <circle cx="146" cy="138" r="10" fill="#4b6b2f"/><circle cx="138" cy="146" r="7" fill="#5f8a3a"/><circle cx="152" cy="148" r="6" fill="#6f9a45"/>
+          <ellipse cx="62" cy="142" rx="14" ry="8" fill="#e9c46a" opacity=".9"/>
+        </svg>
+        <h3>Рибай на углях</h3>
+        <p>Мраморная говядина 300 г, 28 дней сухого вызревания, соус из жжёного масла.</p>
+        <div class="pr"><b>2 900 ₽</b><span>300 г · 25 мин</span></div>
+      </article>
+      <article class="dish rv d1">
+        <span class="num">02</span>
+        <svg class="plate" viewBox="0 0 200 200">
+          <defs>
+            <radialGradient id="pl2" cx="50%" cy="45%" r="55%"><stop offset="0" stop-color="#3a342e"/><stop offset=".85" stop-color="#26211c"/><stop offset="1" stop-color="#171410"/></radialGradient>
+            <radialGradient id="fish" cx="50%" cy="40%" r="70%"><stop offset="0" stop-color="#e8c79a"/><stop offset=".7" stop-color="#b8834d"/><stop offset="1" stop-color="#6b4422"/></radialGradient>
+          </defs>
+          <circle cx="100" cy="100" r="96" fill="url(#pl2)"/><circle cx="100" cy="100" r="74" fill="none" stroke="#4a423a" stroke-width="1"/>
+          <path d="M34 100 Q70 62 132 84 L160 66 Q154 100 160 134 L132 116 Q70 138 34 100Z" fill="url(#fish)"/>
+          <g stroke="#3d240f" stroke-width="3" opacity=".6" stroke-linecap="round"><path d="M70 84 L80 116"/><path d="M90 80 L100 120"/><path d="M110 82 L118 118"/></g>
+          <circle cx="50" cy="96" r="3.5" fill="#1a1007"/>
+          <circle cx="62" cy="138" r="9" fill="#f2d16b"/><path d="M58 138 h8" stroke="#c9a23e"/>
+          <g fill="#7aa35a"><circle cx="140" cy="146" r="4"/><circle cx="148" cy="140" r="3"/><circle cx="134" cy="152" r="3"/></g>
+        </svg>
+        <h3>Дорадо целиком</h3>
+        <p>Рыба на решётке над углями вишни, лимон с гриля и зелёное масло с каперсами.</p>
+        <div class="pr"><b>1 480 ₽</b><span>450 г · 20 мин</span></div>
+      </article>
+      <article class="dish rv d2">
+        <span class="num">03</span>
+        <svg class="plate" viewBox="0 0 200 200">
+          <defs>
+            <radialGradient id="pl3" cx="50%" cy="45%" r="55%"><stop offset="0" stop-color="#f4efe7"/><stop offset=".85" stop-color="#d9d1c5"/><stop offset="1" stop-color="#b8afa2"/></radialGradient>
+            <radialGradient id="choc" cx="40%" cy="35%" r="65%"><stop offset="0" stop-color="#6b3f26"/><stop offset=".7" stop-color="#3a1f10"/><stop offset="1" stop-color="#1e0f07"/></radialGradient>
+          </defs>
+          <circle cx="100" cy="100" r="96" fill="url(#pl3)"/><circle cx="100" cy="100" r="72" fill="none" stroke="#c9c0b3" stroke-width="1"/>
+          <path d="M40 120 Q70 150 110 140" stroke="#5a2a14" stroke-width="5" fill="none" stroke-linecap="round" opacity=".7"/>
+          <circle cx="100" cy="94" r="38" fill="url(#choc)"/>
+          <path d="M84 80 Q100 70 116 80" stroke="#9a6a4a" stroke-width="2" fill="none" opacity=".6"/>
+          <g fill="#fff" opacity=".9"><rect x="94" y="88" width="3" height="3" transform="rotate(20 95 89)"/><rect x="104" y="96" width="2.5" height="2.5"/><rect x="90" y="100" width="2" height="2" transform="rotate(40 91 101)"/></g>
+          <ellipse cx="146" cy="128" rx="18" ry="14" fill="#f6ead2"/><ellipse cx="142" cy="124" rx="8" ry="5" fill="#fff" opacity=".7"/>
+          <g fill="#a3243b"><circle cx="58" cy="78" r="6"/><circle cx="66" cy="70" r="5"/></g>
+        </svg>
+        <h3>Фондан с солью</h3>
+        <p>Горячий шоколад внутри, хлопья морской соли и мороженое из топлёного молока.</p>
+        <div class="pr"><b>590 ₽</b><span>160 г · 12 мин</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- МЕНЮ -->
+<section class="sec menu-sec" id="menu">
+  <div class="wrap">
+    <div class="menu-top">
+      <div class="rv"><span class="eyebrow">Меню</span><h2 class="title">Всё, что <em>с огня</em></h2></div>
+      <div class="mtabs rv d1" id="mtabs" role="tablist"></div>
+    </div>
+    <div class="mlist" id="mlist"></div>
+    <p class="menu-note">Если у вас аллергия, скажите официанту: шеф подскажет, что можно заменить.</p>
+  </div>
+</section>
+
+<!-- СОБЫТИЯ -->
+<section class="sec" id="events">
+  <div class="wrap">
+    <div class="rv"><span class="eyebrow">События</span><h2 class="title">Вечера, <em>которые запоминают</em></h2></div>
+    <div class="events">
+      <div class="ev rv"><span class="when">Каждую пятницу · 20:00</span><h3>Джаз у огня</h3><p>Живой квартет, приглушённый свет и специальная винная карта на вечер.</p><div class="foot"><b>Вход свободный</b><button data-book>Забронировать →</button></div></div>
+      <div class="ev rv d1"><span class="when">Суббота и воскресенье · 12–16</span><h3>Бранч с печи</h3><p>Шакшука из печи, сырники на углях, свежий хлеб и лимонады. Для семей с детьми.</p><div class="foot"><b>от 890 ₽</b><button data-book>Забронировать →</button></div></div>
+      <div class="ev rv d2"><span class="when">Последний четверг месяца</span><h3>Ужин с сомелье</h3><p>Пять подач от шефа и пять вин, которые подобрали именно к ним. Всего 24 места.</p><div class="foot"><b>5 900 ₽</b><button data-book>Забронировать →</button></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ЛУЧШИЙ СТОЛ -->
+<section class="sec" style="padding-top:20px">
+  <div class="wrap">
+    <div class="tablecta rv">
+      <div style="position:relative;z-index:1">
+        <span class="eyebrow">Онлайн-бронирование</span>
+        <h2 class="title">Выберите <em>свой стол</em> на схеме зала</h2>
+        <ul class="ticks">
+          <li>Стойка у огня: смотрите, как шеф готовит ваше блюдо</li>
+          <li>Уютные столы в зале для свиданий и семейных ужинов</li>
+          <li>Летняя терраса с видом на реку</li>
+        </ul>
+        <button class="btn btn-fire" data-book>Выбрать стол <span class="arr">→</span></button>
+      </div>
+      <div class="mini-plan" id="miniPlan" aria-hidden="true"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ОТЗЫВЫ -->
+<section class="sec" id="reviews" style="padding-top:40px">
+  <div class="wrap">
+    <div class="sig-head" style="margin-bottom:0">
+      <div class="rv"><span class="eyebrow">Отзывы</span><h2 class="title">Что говорят <em>гости</em></h2></div>
+      <div class="scores rv d1"><div><b>4,9</b><span>Яндекс Карты · 1 240</span></div><div><b>4,9</b><span>2ГИС · 860</span></div></div>
+    </div>
+    <div class="rev-grid">
+      <div class="rev big rv"><div class="stars">★★★★★</div><p>Лучший стейк в моей жизни, и я не преувеличиваю. Сидели за стойкой у огня и весь вечер смотрели, как работает шеф. Это не ужин, это шоу.</p><div class="who"><b>Максим</b><small>отмечал день рождения</small></div></div>
+      <div class="rev rv d1"><div class="stars">★★★★★</div><p>Хлеб из печи с топлёным маслом стоит того, чтобы прийти только ради него.</p><div class="who"><b>Ирина</b><small>Яндекс Карты</small></div></div>
+      <div class="rev rv d2"><div class="stars">★★★★★</div><p>Ужин с сомелье — подарок мужу на годовщину. Пять вин, пять подач, всё идеально.</p><div class="who"><b>Наталья</b><small>2ГИС</small></div></div>
+      <div class="rev rv d1"><div class="stars">★★★★★</div><p>Ходим на бранч с детьми почти каждые выходные. Сырники на углях — любимое блюдо дочки.</p><div class="who"><b>Алексей</b><small>Яндекс Карты</small></div></div>
+      <div class="rev rv d2"><div class="stars">★★★★★</div><p>Копчёный олд фэшн готовят прямо при тебе под колпаком с дымом. Красиво и очень вкусно.</p><div class="who"><b>Дарья</b><small>2ГИС</small></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- КОНТАКТЫ -->
+<section class="sec contacts" id="contacts">
+  <div class="wrap ct-grid">
+    <div>
+      <div class="rv"><span class="eyebrow">Ждём вас</span><h2 class="title">Приходите <em>погреться</em></h2></div>
+      <div class="hours rv d1" id="hours"></div>
+    </div>
+    <div class="ct-list rv d2">
+      <div><div class="lb">Адрес</div><div class="v">ул. Набережная, 7<br>вход с набережной</div></div>
+      <div><div class="lb">Бронирование</div><a class="v" href="tel:+70000000000">+7 (000) 000-00-00</a></div>
+      <div><div class="lb">Банкеты и мероприятия</div><a class="v" href="#" style="font-size:22px">event@zhar.example</a></div>
+      <div><button class="btn btn-fire" data-book>Забронировать стол <span class="arr">→</span></button></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="big">ЖАР</div>
+    <div class="small"><span>© Ресторан «Жар»</span><span>Пример сайта. Ресторан, блюда, отзывы и контакты вымышлены.</span></div>
+  </div>
+</footer>
+
+<!-- ОКНО БРОНИРОВАНИЯ -->
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Бронирование стола">
+  <div class="bg" data-close></div>
+  <div class="sheet">
+    <div class="sheet-top"><span class="eyebrow">Бронирование</span><button class="close" data-close aria-label="Закрыть">✕</button></div>
+    <div class="steps-bar" id="bar"></div>
+    <div id="bkBody"></div>
+    <div class="sheet-foot" id="bkFoot"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  // ---------- Данные ----------
+  var MENU = {
+    'Закуски': [
+      ['Тартар из говядины', 'Копчёный желток, каперсы, хлеб из печи', 890, 'hit'],
+      ['Печёная свёкла', 'Козий сыр, жареный фундук, мёд с углей', 640, 'veg'],
+      ['Хумус с углей', 'Тёплая лепёшка из дровяной печи', 520, 'veg'],
+      ['Строганина из муксуна', 'Соль, перец, лёд, ржаные гренки', 950],
+      ['Перцы падрон', 'Обжарены на чугуне, морская соль', 480, 'hot']
+    ],
+    'С огня': [
+      ['Рибай 300 г', '28 дней сухого вызревания, соус из жжёного масла', 2900, 'hit'],
+      ['Цыплёнок на углях', 'Половина цыплёнка, соус из печёного перца', 1150],
+      ['Дорадо целиком', 'Угли вишни, лимон с гриля, зелёное масло', 1480],
+      ['Каре ягнёнка', 'Розмарин, чеснок, печёные томаты', 2400],
+      ['Говяжьи рёбра 14 часов', 'Глазурь из вишни и копчёного перца', 1890, 'hot'],
+      ['Овощи с огня', 'Цукини, баклажан, перец, соус романеско', 690, 'veg']
+    ],
+    'Гарниры': [
+      ['Картофель в золе', 'Сметана с зелёным луком, трюфельное масло', 450, 'hit'],
+      ['Хлеб из дровяной печи', 'Топлёное масло с солью', 250],
+      ['Кукуруза с углей', 'Пармезан, лайм, копчёная паприка', 390, 'veg'],
+      ['Зелёный салат', 'Огурец, шпинат, горчичная заправка', 420, 'veg']
+    ],
+    'Десерты': [
+      ['Фондан с солью', 'Мороженое из топлёного молока', 590, 'hit'],
+      ['Печёное яблоко', 'Карамель, грецкий орех, крем-фреш', 520],
+      ['Чизкейк на углях', 'Дымный, с ягодным соусом', 560],
+      ['Мороженое ручной работы', 'Три шарика на выбор', 390]
+    ],
+    'Бар': [
+      ['Копчёный олд фэшн', 'Бурбон, дым вишнёвой щепы', 750, 'hit'],
+      ['Глинтвейн из печи', 'Красное вино, пряности, апельсин', 490],
+      ['Лимонад облепиха-розмарин', '400 мл, без алкоголя', 390],
+      ['Вино по бокалам', '12 позиций, сомелье поможет выбрать', 550],
+      ['Морс с углей', 'Брусника и клюква, подаётся тёплым', 290]
+    ]
+  };
+  var TAGS = { hit: ['hit', 'Хит'], veg: ['veg', 'Вег'], hot: ['hot', 'Острое'] };
+  // Зал: x, y — центр стола в схеме 640×440
+  var TABLES = [
+    { id: 'C1', zone: 'У огня', seats: 2, shape: 'bar', x: 250, y: 108 },
+    { id: 'C2', zone: 'У огня', seats: 2, shape: 'bar', x: 320, y: 108 },
+    { id: 'C3', zone: 'У огня', seats: 2, shape: 'bar', x: 390, y: 108 },
+    { id: '1', zone: 'Зал', seats: 2, shape: 'round', x: 80, y: 90 },
+    { id: '2', zone: 'Зал', seats: 2, shape: 'round', x: 80, y: 170 },
+    { id: '3', zone: 'Зал', seats: 4, shape: 'square', x: 170, y: 200 },
+    { id: '4', zone: 'Зал', seats: 4, shape: 'square', x: 470, y: 200 },
+    { id: '5', zone: 'Зал', seats: 2, shape: 'round', x: 560, y: 90 },
+    { id: '6', zone: 'Зал', seats: 2, shape: 'round', x: 560, y: 170 },
+    { id: '7', zone: 'Зал', seats: 6, shape: 'long', x: 320, y: 230 },
+    { id: '8', zone: 'Зал', seats: 4, shape: 'square', x: 90, y: 270 },
+    { id: '9', zone: 'Зал', seats: 4, shape: 'square', x: 550, y: 270 },
+    { id: 'T1', zone: 'Терраса', seats: 2, shape: 'round', x: 110, y: 380 },
+    { id: 'T2', zone: 'Терраса', seats: 4, shape: 'square', x: 230, y: 380 },
+    { id: 'T3', zone: 'Терраса', seats: 8, shape: 'long8', x: 380, y: 380 },
+    { id: 'T4', zone: 'Терраса', seats: 2, shape: 'round', x: 530, y: 380 }
+  ];
+  var HOURS = { 0: [12, 24], 1: [12, 24], 2: [12, 24], 3: [12, 24], 4: [12, 24], 5: [12, 26], 6: [12, 26] };
+  var DAYS = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+  var DAYS_FULL = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
+  var MONTHS = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+  function rub(n) { return n.toLocaleString('ru-RU').replace(/ /g, ' ') + ' ₽'; }
+  function hh(h) { return (h % 24 < 10 ? '0' : '') + (h % 24) + ':00'; }
+
+  // ---------- Открыто сейчас ----------
+  function openStatus() {
+    var now = new Date(), d = now.getDay(), h = now.getHours() + now.getMinutes() / 60;
+    var prev = HOURS[(d + 6) % 7];
+    if (prev[1] > 24 && h < prev[1] - 24) return { open: true, text: 'Открыто до ' + hh(prev[1]) };
+    var t = HOURS[d];
+    if (h >= t[0] && h < t[1]) return { open: true, text: 'Открыто до ' + hh(t[1]) };
+    if (h < t[0]) return { open: false, text: 'Откроемся в ' + hh(t[0]) };
+    return { open: false, text: 'Откроемся завтра в ' + hh(HOURS[(d + 1) % 7][0]) };
+  }
+  var st = openStatus(), on = document.getElementById('openNow');
+  on.querySelector('span').textContent = st.text;
+  on.classList.toggle('closed', !st.open);
+  var today = new Date().getDay();
+  document.getElementById('heroHours').textContent = 'сегодня ' + hh(HOURS[today][0]) + ' – ' + hh(HOURS[today][1]);
+  document.getElementById('hours').innerHTML = [1, 2, 3, 4, 5, 6, 0].map(function (d) {
+    return '<div class="' + (d === today ? 'today' : '') + '"><span>' + DAYS_FULL[d] + '</span><span>' + hh(HOURS[d][0]) + ' – ' + hh(HOURS[d][1]) + '</span></div>';
+  }).join('');
+
+  // ---------- Шапка и меню ----------
+  var nav = document.getElementById('nav');
+  addEventListener('scroll', function () { nav.classList.toggle('scrolled', scrollY > 30); }, { passive: true });
+  nav.classList.toggle('scrolled', scrollY > 30);
+  var burger = document.getElementById('burger');
+  function setMenu(open) { document.body.classList.toggle('menu-open', open); document.body.classList.toggle('lock', open); burger.setAttribute('aria-expanded', open); }
+  burger.addEventListener('click', function () { setMenu(!document.body.classList.contains('menu-open')); });
+  document.querySelectorAll('#mmenu a, #mmenu button').forEach(function (a) { a.addEventListener('click', function () { setMenu(false); }); });
+
+  // ---------- Искры ----------
+  var cv = document.getElementById('embers'), ctx = cv.getContext('2d');
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var parts = [], W = 0, H = 0, running = true, dpr = Math.min(devicePixelRatio || 1, 2);
+  function size() {
+    W = cv.clientWidth; H = cv.clientHeight;
+    cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  function spawn(initial) {
+    var spread = (Math.random() + Math.random() + Math.random()) / 3; // ближе к центру
+    return {
+      x: W * (.1 + spread * .8), y: initial ? Math.random() * H : H + 10,
+      r: .6 + Math.random() * 2.2, vy: .4 + Math.random() * 1.3, vx: (Math.random() - .5) * .3,
+      ph: Math.random() * 6.28, life: 0, max: 180 + Math.random() * 320, hue: 18 + Math.random() * 22
+    };
+  }
+  function initEmbers() {
+    size(); var n = Math.min(150, Math.round(W / 9));
+    parts = []; for (var i = 0; i < n; i++) parts.push(spawn(true));
+  }
+  function frame(t) {
+    if (!running) return;
+    ctx.clearRect(0, 0, W, H);
+    ctx.globalCompositeOperation = 'lighter';
+    for (var i = 0; i < parts.length; i++) {
+      var p = parts[i];
+      p.life++; p.y -= p.vy; p.x += p.vx + Math.sin(t / 900 + p.ph) * .35;
+      var k = p.life / p.max, a = (k < .1 ? k * 10 : 1 - k) * (.6 + .4 * Math.sin(t / 120 + p.ph));
+      if (k >= 1 || p.y < -10) { parts[i] = spawn(false); continue; }
+      ctx.fillStyle = 'hsla(' + p.hue + ',100%,60%,' + a * .18 + ')';
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 4, 0, 6.28); ctx.fill();
+      ctx.fillStyle = 'hsla(' + (p.hue + 15) + ',100%,75%,' + a + ')';
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.28); ctx.fill();
+    }
+    ctx.globalCompositeOperation = 'source-over';
+    requestAnimationFrame(frame);
+  }
+  if (!reduce) {
+    initEmbers(); requestAnimationFrame(frame);
+    addEventListener('resize', function () { initEmbers(); });
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (es) {
+        var vis = es[0].isIntersecting;
+        if (vis && !running) { running = true; requestAnimationFrame(frame); }
+        running = vis;
+      }).observe(cv);
+    }
+  }
+
+  // ---------- Появление и счётчики ----------
+  function countUp(el) {
+    var end = +el.dataset.count, suffix = end === 450 ? '°' : '', t0 = null;
+    requestAnimationFrame(function step(t) {
+      t0 = t0 || t; var p = Math.min((t - t0) / 1600, 1);
+      el.textContent = Math.round(end * (1 - Math.pow(1 - p, 3))) + suffix;
+      if (p < 1) requestAnimationFrame(step);
+    });
+  }
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        e.target.classList.add('in');
+        e.target.querySelectorAll('[data-count]').forEach(countUp);
+        io.unobserve(e.target);
+      });
+    }, { threshold: .12, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.rv').forEach(function (el) { io.observe(el); });
+  } else {
+    document.querySelectorAll('.rv').forEach(function (el) { el.classList.add('in'); });
+    document.querySelectorAll('[data-count]').forEach(countUp);
+  }
+
+  // ---------- Меню ----------
+  var cats = Object.keys(MENU), cur = 'С огня';
+  var mt = document.getElementById('mtabs');
+  mt.innerHTML = cats.map(function (c) { return '<button class="mtab" role="tab" data-c="' + c + '">' + c + '</button>'; }).join('');
+  function renderMenu() {
+    mt.querySelectorAll('.mtab').forEach(function (b) { var s = b.dataset.c === cur; b.classList.toggle('on', s); b.setAttribute('aria-selected', s); });
+    document.getElementById('mlist').innerHTML = MENU[cur].map(function (m, i) {
+      var tag = m[3] ? '<span class="tag ' + TAGS[m[3]][0] + '">' + TAGS[m[3]][1] + '</span>' : '';
+      return '<div class="mi" style="animation-delay:' + i * 0.05 + 's"><div class="row"><h4>' + m[0] + tag + '</h4><span class="dots"></span><span class="price">' + (cur === 'Бар' && m[0] === 'Вино по бокалам' ? 'от ' : '') + rub(m[2]) + '</span></div><p>' + m[1] + '</p></div>';
+    }).join('');
+  }
+  mt.addEventListener('click', function (e) { var c = e.target.dataset.c; if (c) { cur = c; renderMenu(); } });
+  renderMenu();
+
+  // ---------- Схема зала ----------
+  function seatDots(t) {
+    var s = [], n = t.seats, x = t.x, y = t.y, i;
+    if (t.shape === 'round') { for (i = 0; i < n; i++) { var a = Math.PI * i + Math.PI / 2; s.push([x + Math.cos(a) * 28, y + Math.sin(a) * 28]); } }
+    else if (t.shape === 'bar') { s.push([x - 13, y + 26], [x + 13, y + 26]); }
+    else if (t.shape === 'square') { s.push([x, y - 30], [x, y + 30], [x - 30, y], [x + 30, y]); }
+    else { var w = t.shape === 'long8' ? 120 : 92, per = n / 2; for (i = 0; i < per; i++) { var px = x - w / 2 + (w / per) * (i + .5); s.push([px, y - 28], [px, y + 28]); } }
+    return s;
+  }
+  function shapeSvg(t) {
+    if (t.shape === 'round') return '<circle class="shape" cx="' + t.x + '" cy="' + t.y + '" r="18"/>';
+    if (t.shape === 'bar') return '<rect class="shape" x="' + (t.x - 28) + '" y="' + (t.y - 12) + '" width="56" height="24" rx="12"/>';
+    if (t.shape === 'square') return '<rect class="shape" x="' + (t.x - 20) + '" y="' + (t.y - 20) + '" width="40" height="40" rx="6"/>';
+    var w = t.shape === 'long8' ? 130 : 100;
+    return '<rect class="shape" x="' + (t.x - w / 2) + '" y="' + (t.y - 18) + '" width="' + w + '" height="36" rx="8"/>';
+  }
+  function planSvg(state) {
+    state = state || {};
+    var s = '<svg class="plan" viewBox="0 0 640 440" role="group" aria-label="Схема зала">' +
+      '<defs><radialGradient id="fire" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ffcf8a"/><stop offset=".4" stop-color="#e2683c"/><stop offset="1" stop-color="#e2683c" stop-opacity="0"/></radialGradient></defs>' +
+      '<rect x="6" y="6" width="628" height="300" rx="16" fill="none" stroke="rgba(241,230,214,.12)"/>' +
+      '<rect x="6" y="326" width="628" height="108" rx="16" fill="none" stroke="rgba(241,230,214,.12)" stroke-dasharray="6 6"/>' +
+      '<ellipse cx="320" cy="44" rx="130" ry="40" fill="url(#fire)" opacity=".55"><animate attributeName="opacity" values=".45;.7;.45" dur="3s" repeatCount="indefinite"/></ellipse>' +
+      '<rect x="210" y="26" width="220" height="34" rx="10" fill="#2a1b12" stroke="#e2683c" stroke-opacity=".6"/>' +
+      '<text x="320" y="44" fill="#ffd29a" font-family="Inter" font-size="11" font-weight="600" letter-spacing="2.5" text-anchor="middle" dominant-baseline="central">ОТКРЫТЫЙ ОГОНЬ</text>' +
+      '<rect x="210" y="74" width="220" height="10" rx="5" fill="#3a2a1e"/>' +
+      '<text class="zone-lbl" x="24" y="30">ЗАЛ</text><text class="zone-lbl" x="24" y="350">ТЕРРАСА</text>';
+    TABLES.forEach(function (t) {
+      var cls = 'tbl' + (state.busy && state.busy[t.id] ? ' busy' : '') + (state.small && state.small[t.id] ? ' small' : '') + (state.sel === t.id ? ' sel' : '');
+      var lbl = 'Стол ' + t.id + ', ' + t.zone + ', мест: ' + t.seats + (state.busy && state.busy[t.id] ? ', занят' : '') + (state.small && state.small[t.id] ? ', мало мест' : '');
+      s += '<g class="' + cls + '" data-t="' + t.id + '" tabindex="' + (state.interactive ? 0 : -1) + '" role="button" aria-label="' + lbl + '" aria-pressed="' + (state.sel === t.id) + '">' +
+        seatDots(t).map(function (p) { return '<circle class="seat" cx="' + p[0] + '" cy="' + p[1] + '" r="5"/>'; }).join('') +
+        shapeSvg(t) + '<text x="' + t.x + '" y="' + t.y + '">' + t.id + '</text></g>';
+    });
+    return s + '</svg>';
+  }
+  document.getElementById('miniPlan').innerHTML = '<div class="plan-wrap">' + planSvg({ sel: 'C2', busy: { '3': 1, '6': 1, 'T2': 1 } }) + '</div>';
+
+  // ---------- Бронирование ----------
+  var modal = document.getElementById('modal'), bk = {}, lastFocus = null;
+  function dayList() { var out = [], d = new Date(); d.setHours(0, 0, 0, 0); for (var i = 0; i < 10; i++) { var x = new Date(d); x.setDate(d.getDate() + i); out.push(x); } return out; }
+  function timeList(day) {
+    // последняя бронь за 1,5 часа до закрытия, но не позже 23:30
+    var t = HOURS[day.getDay()], out = [], last = Math.min(t[1] - 1.5, 23.5);
+    for (var h = t[0]; h <= last; h += .5) out.push(Math.floor(h) + ':' + (h % 1 ? '30' : '00'));
+    return out;
+  }
+  function minutes(tm) { var p = tm.split(':'); return +p[0] * 60 + +p[1]; }
+  function timeBusy(day, tm) {
+    var now = new Date();
+    if (day.toDateString() === now.toDateString() && minutes(tm) <= now.getHours() * 60 + now.getMinutes() + 30) return 'past';
+    return ((day.getDate() * 13 + minutes(tm) / 30 * 7) % 11) === 0 ? 'full' : '';
+  }
+  function tableBusy(day, tm, id) {
+    var h = 0, s = day.getDate() + '|' + tm + '|' + id;
+    for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 1000;
+    return h % 3 === 0;
+  }
+  function dayLabel(d) { return DAYS[d.getDay()] + ', ' + d.getDate() + ' ' + MONTHS[d.getMonth()]; }
+  function guestsWord(n) { var m10 = n % 10, m100 = n % 100; return n + ' ' + (m10 === 1 && m100 !== 11 ? 'гость' : m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? 'гостя' : 'гостей'); }
+  function fits(t, g) { return t.seats >= g && t.seats <= g + 4; }
+
+  function openBooking() {
+    lastFocus = document.activeElement;
+    bk = { step: 0, guests: 2, day: null, time: null, table: null, name: '', phone: '', comment: '', occasion: '' };
+    modal.classList.add('open'); document.body.classList.add('lock');
+    render();
+    setTimeout(function () { modal.querySelector('.close').focus(); }, 50);
+  }
+  function closeBooking() {
+    modal.classList.remove('open'); document.body.classList.remove('lock');
+    if (lastFocus && document.contains(lastFocus) && lastFocus.offsetParent !== null) lastFocus.focus();
+  }
+  document.querySelectorAll('[data-book]').forEach(function (b) { b.addEventListener('click', openBooking); });
+  modal.addEventListener('click', function (e) { if (e.target.closest('[data-close]')) closeBooking(); });
+
+  function render() {
+    document.getElementById('bar').innerHTML = bk.step === 3 ? '' : [0, 1, 2].map(function (i) { return '<i class="' + (i <= bk.step ? 'on' : '') + '"></i>'; }).join('');
+    var body = document.getElementById('bkBody'), foot = document.getElementById('bkFoot'), html = '', can = false, label = 'Далее →';
+    var days = dayList();
+    if (bk.step === 0) {
+      html = '<div class="bk-title">Когда вас ждать?</div><div class="bk-sub">Бронь бесплатная, держим стол 15 минут.</div>' +
+        '<div class="lbl">Гостей</div><div class="stepper"><button data-g="-1" aria-label="Меньше гостей" ' + (bk.guests <= 1 ? 'disabled' : '') + '>−</button><output aria-live="polite">' + bk.guests + '</output><button data-g="1" aria-label="Больше гостей" ' + (bk.guests >= 12 ? 'disabled' : '') + '>+</button><small>' + guestsWord(bk.guests).replace(/^\d+ /, '') + '</small></div>' +
+        (bk.guests > 8 ? '<div class="warn">Для компании больше 8 человек свободна только терраса. Для банкета в зале позвоните нам.</div>' : '') +
+        '<div class="lbl">Дата</div><div class="chips days">' + days.map(function (d, i) { return '<button class="chip' + (bk.day === i ? ' on' : '') + '" data-day="' + i + '"><small>' + (i === 0 ? 'Сегодня' : i === 1 ? 'Завтра' : DAYS[d.getDay()]) + '</small><b>' + d.getDate() + '</b></button>'; }).join('') + '</div>';
+      if (bk.day !== null) {
+        var day = days[bk.day], times = timeList(day);
+        var avail = times.filter(function (t) { return !timeBusy(day, t); });
+        html += '<div class="lbl">Время</div>' + (avail.length ? '<div class="chips times">' + times.map(function (t) {
+          var b = timeBusy(day, t);
+          return '<button class="chip' + (bk.time === t ? ' on' : '') + '" data-time="' + t + '"' + (b ? ' disabled aria-label="' + t + ', занято"' : '') + '>' + t + '</button>';
+        }).join('') + '</div>' : '<div class="warn">На сегодня свободного времени уже нет. Выберите другой день.</div>');
+      }
+      can = bk.day !== null && !!bk.time;
+    } else if (bk.step === 1) {
+      var d1 = days[bk.day], busy = {}, small = {}, freeFit = 0;
+      TABLES.forEach(function (t) { if (tableBusy(d1, bk.time, t.id)) busy[t.id] = 1; else if (!fits(t, bk.guests)) small[t.id] = 1; else freeFit++; });
+      if (bk.table && (busy[bk.table] || small[bk.table])) bk.table = null;
+      var sel = TABLES.find(function (t) { return t.id === bk.table; });
+      html = '<div class="bk-title">Выберите стол</div><div class="bk-sub">' + dayLabel(d1) + ', ' + bk.time + ' · ' + guestsWord(bk.guests) + '</div>' +
+        '<div class="plan-wrap" id="planBox">' + planSvg({ interactive: true, busy: busy, small: small, sel: bk.table }) + '</div>' +
+        '<div class="legend"><span><i style="background:#2a221b;border:1px solid rgba(241,230,214,.35)"></i>Свободен</span><span><i style="background:#e2683c"></i>Ваш выбор</span><span><i style="background:#1a1612;border:1px solid rgba(241,230,214,.12)"></i>Занят</span><span><i style="border:1px dashed rgba(241,230,214,.3)"></i>Не подходит по размеру</span></div>' +
+        (freeFit ? '<div class="lbl">Свободные столы</div><div class="tlist">' + TABLES.filter(function (t) { return !busy[t.id] && !small[t.id]; }).map(function (t) {
+          return '<button data-pick="' + t.id + '" class="' + (bk.table === t.id ? 'on' : '') + '" aria-pressed="' + (bk.table === t.id) + '">№ ' + t.id + ' · ' + t.zone + ' · ' + t.seats + ' мест' + (t.seats < 5 && t.seats > 1 ? 'а' : '') + '</button>';
+        }).join('') + '</div>' : '') +
+        '<div class="sel-info" aria-live="polite">' + (sel ? 'Стол <b>' + sel.id + '</b> · ' + sel.zone + ' · до ' + sel.seats + ' мест' : freeFit ? 'Нажмите на свободный стол на схеме' : 'На это время подходящих столов нет. Вернитесь и выберите другое время.') + '</div>';
+      can = !!bk.table;
+    } else if (bk.step === 2) {
+      var t2 = TABLES.find(function (t) { return t.id === bk.table; });
+      html = '<div class="bk-title">Почти готово</div><div class="bk-sub">Проверьте бронь и оставьте контакты.</div>' +
+        '<div class="summary"><div><span>Дата и время</span><b>' + dayLabel(days[bk.day]) + ', ' + bk.time + '</b></div><div><span>Гостей</span><b>' + bk.guests + '</b></div><div><span>Стол</span><b>№ ' + t2.id + ' · ' + t2.zone + '</b></div></div>' +
+        '<div class="lbl" style="margin-top:0">Повод</div><div class="occ">' + ['Просто ужин', 'Свидание', 'День рождения', 'Деловая встреча'].map(function (o) { return '<button data-occ="' + o + '" class="' + (bk.occasion === o ? 'on' : '') + '">' + o + '</button>'; }).join('') + '</div>' +
+        '<div class="field"><label for="fName">Имя</label><input id="fName" autocomplete="name" placeholder="Как к вам обращаться" value="' + bk.name.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;') + '"></div>' +
+        '<div class="field"><label for="fPhone">Телефон</label><input id="fPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+7 (___) ___-__-__" value="' + bk.phone + '"></div>' +
+        '<div class="field"><label for="fComment">Пожелания</label><textarea id="fComment" rows="2" placeholder="Например: нужен детский стул">' + bk.comment.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</textarea></div>' +
+        '<p class="note">Это демонстрационный сайт: бронь никуда не отправляется.</p>';
+      can = valid(); label = 'Забронировать';
+    } else {
+      var t3 = TABLES.find(function (t) { return t.id === bk.table; });
+      var nm = bk.name.trim().split(/\s+/)[0].replace(/&/g, '&amp;').replace(/</g, '&lt;');
+      html = '<div class="done"><div class="ok"><svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 23l7 7 14-15"/></svg></div>' +
+        '<div class="bk-title">' + nm + ', стол ваш!</div><p class="bk-sub" style="max-width:380px;margin:12px auto 0">Ждём вас ' + dayLabel(days[bk.day]) + ' в ' + bk.time + ', стол № ' + t3.id + ' (' + t3.zone.toLowerCase() + '). За два часа пришлём напоминание.' + (bk.occasion === 'День рождения' ? ' Шеф приготовит небольшой сюрприз.' : '') + '</p></div>';
+    }
+    body.innerHTML = html;
+    if (bk.step === 3) foot.innerHTML = '<button class="btn btn-fire" data-close>Отлично</button>';
+    else foot.innerHTML = (bk.step > 0 ? '<button class="btn btn-ghost" data-back style="flex:0 0 auto" aria-label="Назад">←</button>' : '') + '<button class="btn btn-fire" data-next ' + (can ? '' : 'disabled') + '>' + label + '</button>';
+    if (bk.step === 2) bindForm();
+    if (bk.step === 1) { // на узком экране показываем середину схемы
+      var pb = document.getElementById('planBox');
+      if (pb && pb.scrollWidth > pb.clientWidth && !bk.planScrolled) { pb.scrollLeft = (pb.scrollWidth - pb.clientWidth) / 2; bk.planScrolled = true; }
+      else if (pb && bk.planScroll != null) pb.scrollLeft = bk.planScroll;
+    }
+  }
+  function valid() { return bk.name.trim().length > 1 && bk.phone.replace(/\D/g, '').length === 11; }
+  function bindForm() {
+    var n = document.getElementById('fName'), p = document.getElementById('fPhone'), c = document.getElementById('fComment');
+    function upd() { var b = document.querySelector('#bkFoot [data-next]'); if (b) b.disabled = !valid(); }
+    n.addEventListener('input', function () { bk.name = n.value; upd(); });
+    c.addEventListener('input', function () { bk.comment = c.value; });
+    p.addEventListener('focus', function () { if (!p.value) p.value = '+7 ('; });
+    p.addEventListener('input', function () { p.value = maskPhone(p.value); bk.phone = p.value; upd(); });
+  }
+  function maskPhone(v) {
+    var d = v.replace(/\D/g, '');
+    if (!d) return '';
+    var n = /^\s*\+7/.test(v) ? d.slice(1) : d;
+    if (n.length === 11 && (n[0] === '8' || n[0] === '7')) n = n.slice(1);
+    n = n.slice(0, 10);
+    if (!n) return v.length < 4 ? '' : '+7 (';
+    var r = '+7 (' + n.slice(0, 3);
+    if (n.length > 3) r += ') ' + n.slice(3, 6);
+    if (n.length > 6) r += '-' + n.slice(6, 8);
+    if (n.length > 8) r += '-' + n.slice(8, 10);
+    return r;
+  }
+  function pickTable(id, fromList) {
+    var g = document.querySelector('#planBox [data-t="' + id + '"]');
+    if (!g || g.classList.contains('busy') || g.classList.contains('small')) return;
+    bk.planScroll = document.getElementById('planBox').scrollLeft;
+    bk.table = id; render();
+    var again = document.querySelector(fromList ? '[data-pick="' + id + '"]' : '#planBox [data-t="' + id + '"]');
+    if (again) again.focus({ preventScroll: true });
+  }
+  modal.addEventListener('click', function (e) {
+    var tg = e.target.closest('[data-t]');
+    if (tg && tg.closest('#planBox')) return pickTable(tg.dataset.t);
+    var b = e.target.closest('button'); if (!b || b.disabled) return;
+    if (b.dataset.pick) return pickTable(b.dataset.pick, true);
+    if (b.dataset.g) { bk.guests = Math.max(1, Math.min(12, bk.guests + +b.dataset.g)); render(); var x = modal.querySelector('[data-g="' + b.dataset.g + '"]'); if (x && !x.disabled) x.focus(); return; }
+    if (b.dataset.day) { bk.day = +b.dataset.day; if (bk.time && (timeList(dayList()[bk.day]).indexOf(bk.time) < 0 || timeBusy(dayList()[bk.day], bk.time))) bk.time = null; return render(); }
+    if (b.dataset.time) { bk.time = b.dataset.time; return render(); }
+    if (b.dataset.occ) { bk.occasion = bk.occasion === b.dataset.occ ? '' : b.dataset.occ; modal.querySelectorAll('[data-occ]').forEach(function (o) { o.classList.toggle('on', o.dataset.occ === bk.occasion); }); return; }
+    if (b.hasAttribute('data-next')) { bk.step++; render(); modal.querySelector('.sheet').scrollTop = 0; return; }
+    if (b.hasAttribute('data-back')) { bk.step--; render(); return; }
+  });
+  addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      if (modal.classList.contains('open')) closeBooking();
+      else if (document.body.classList.contains('menu-open')) { setMenu(false); burger.focus(); }
+      return;
+    }
+    if (!modal.classList.contains('open')) return;
+    if ((e.key === 'Enter' || e.key === ' ') && e.target.closest && e.target.closest('#planBox [data-t]')) { e.preventDefault(); pickTable(e.target.closest('[data-t]').dataset.t); return; }
+    if (e.key === 'Tab') {
+      var f = [].filter.call(modal.querySelectorAll('button, input, textarea, [tabindex="0"]'), function (el) { return !el.disabled && (el.offsetParent !== null || el instanceof SVGElement); });
+      if (!f.length) return;
+      var first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && (document.activeElement === first || !modal.contains(document.activeElement))) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && (document.activeElement === last || !modal.contains(document.activeElement))) { e.preventDefault(); first.focus(); }
+    }
+  });
+})();
+</script>
+</body>
+</html>
